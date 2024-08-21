@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +29,8 @@ import com.jaredrummler.materialspinner.MaterialSpinner;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Objects;
+
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 
 /**
@@ -68,6 +71,7 @@ public class Home extends Fragment implements AdapterView.OnItemSelectedListener
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_home, container, false);
         ImageSlider imageSlider = view.findViewById(R.id.viewFlipper);
+        ImageView imageView = view.findViewById(R.id.imageView);
         ArrayList<SlideModel> imageList = new ArrayList<SlideModel>();
         imageList.add(new SlideModel(R.drawable.img1, ScaleTypes.FIT));
         imageList.add(new SlideModel(R.drawable.img2, ScaleTypes.FIT));
@@ -80,6 +84,16 @@ public class Home extends Fragment implements AdapterView.OnItemSelectedListener
         fragmentTransaction.replace(R.id.frameLayout1,fragment);
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
+
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                new SweetAlertDialog(getContext(), SweetAlertDialog.SUCCESS_TYPE)
+                        .setTitleText("😊")
+                        .setContentText("You will be notified on any notification").show();
+            }
+        });
+
         return view;
 
     }

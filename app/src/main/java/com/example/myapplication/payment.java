@@ -32,6 +32,7 @@ import java.util.Locale;
 import java.util.Objects;
 
 import dev.shreyaspatil.easyupipayment.EasyUpiPayment;
+import dev.shreyaspatil.easyupipayment.EasyUpiPayment.Builder;
 import dev.shreyaspatil.easyupipayment.listener.PaymentStatusListener;
 import dev.shreyaspatil.easyupipayment.model.PaymentApp;
 import dev.shreyaspatil.easyupipayment.model.TransactionDetails;
