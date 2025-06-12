@@ -20,7 +20,7 @@ import android.widget.Toast;
 import com.example.myapplication.data.MyDbHandler;
 import com.example.myapplication.model.Transaction;
 import com.google.android.material.snackbar.Snackbar;
-import com.jaredrummler.materialspinner.MaterialSpinner;
+//import com.jaredrummler.materialspinner.MaterialSpinner;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -120,8 +120,8 @@ public class payment extends Fragment implements PaymentStatusListener {
         String transactionId = "TID" + System.currentTimeMillis();
         fieldTransactionId.setText(transactionId);
         fieldTransactionRefId.setText(transactionId);
-        paymentAppChoice = view.findViewById(radioAppChoice.getCheckedRadioButtonId());
         radioAppChoice = view.findViewById(R.id.radioAppChoice);
+        paymentAppChoice = view.findViewById(radioAppChoice.getCheckedRadioButtonId());
         payButton.setOnClickListener(v -> pay());
         return view;
     }

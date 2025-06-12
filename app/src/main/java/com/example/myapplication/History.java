@@ -2,6 +2,9 @@ package com.example.myapplication;
 
 import static androidx.core.content.ContextCompat.getSystemService;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -9,9 +12,13 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.pdf.PdfDocument;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.fragment.app.Fragment;
@@ -19,6 +26,7 @@ import androidx.fragment.app.Fragment;
 import android.os.Environment;
 import android.os.storage.StorageManager;
 import android.os.storage.StorageVolume;
+import android.provider.MediaStore;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -34,6 +42,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -116,49 +125,82 @@ public class History extends Fragment {
         download.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                View view = inflater.inflate(R.layout.fragment_history, container, false);
-                DisplayMetrics displayMetrics = new DisplayMetrics();
+                recyclerView.measure(
+                        View.MeasureSpec.makeMeasureSpec(recyclerView.getWidth(), View.MeasureSpec.EXACTLY),
+                        View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                );
+                int width = recyclerView.getMeasuredWidth();
+                int height = recyclerView.getMeasuredHeight();
 
-                if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.R){
-                    getActivity().getDisplay().getRealMetrics(displayMetrics);
-                } else getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-
-                view.measure(View.MeasureSpec.makeMeasureSpec(displayMetrics.widthPixels,View.MeasureSpec.EXACTLY),
-                        View.MeasureSpec.makeMeasureSpec(displayMetrics.heightPixels,View.MeasureSpec.EXACTLY));
-
-
+                // Create PDF
                 PdfDocument document = new PdfDocument();
-
-                int viewWidth = view.getMeasuredWidth();
-                int viewHeight = view.getMinimumHeight();
-                view.layout(0,0,displayMetrics.widthPixels,displayMetrics.heightPixels);
-
-                PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(viewWidth, viewHeight,1).create();
+                PdfDocument.PageInfo pageInfo = new PdfDocument.PageInfo.Builder(width, height, 1).create();
                 PdfDocument.Page page = document.startPage(pageInfo);
 
                 Canvas canvas = page.getCanvas();
-                view.draw(canvas);
-
+                recyclerView.draw(canvas);
                 document.finishPage(page);
+
+                String fileName = "Expense_History.pdf";
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    // Use MediaStore for Android 10 and above
+                    savePdfUsingMediaStore(document, fileName);
+                } else {
+                    // Use File API for Android 9 and below
+                    if (ContextCompat.checkSelfPermission(getContext(),
+                            "android.permission.WRITE_EXTERNAL_STORAGE") != PackageManager.PERMISSION_GRANTED) {
+                        ActivityCompat.requestPermissions(getActivity(),
+                                new String[]{"android.permission.WRITE_EXTERNAL_STORAGE"}, 1);
+                        return;
+                    }
+                    savePdfUsingFileAPI(document, fileName);
+                }
+            }
+            @RequiresApi(api = Build.VERSION_CODES.Q)
+            private void savePdfUsingMediaStore(PdfDocument document, String fileName) {
+                ContentResolver resolver = getContext().getContentResolver();
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
+                contentValues.put(MediaStore.Downloads.MIME_TYPE, "application/pdf");
+                contentValues.put(MediaStore.Downloads.IS_PENDING, 1);
+
+                Uri collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+                Uri fileUri = resolver.insert(collection, contentValues);
+
+                try {
+                    OutputStream out = resolver.openOutputStream(fileUri);
+                    document.writeTo(out);
+                    document.close();
+                    out.close();
+
+                    contentValues.clear();
+                    contentValues.put(MediaStore.Downloads.IS_PENDING, 0);
+                    resolver.update(fileUri, contentValues, null, null);
+
+                    Toast.makeText(getContext(), "PDF saved to Downloads!", Toast.LENGTH_SHORT).show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getContext(), "Error saving PDF: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+            private void savePdfUsingFileAPI(PdfDocument document, String fileName) {
                 File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                String fileName = "exampleXML.pdf";
                 File file = new File(downloadsDir, fileName);
-                try{
+
+                try {
                     FileOutputStream fos = new FileOutputStream(file);
                     document.writeTo(fos);
                     document.close();
                     fos.close();
-                    Toast.makeText(getContext(), "Written Successfully!!!", Toast.LENGTH_SHORT).show();
 
-                }
-                catch (FileNotFoundException e){
-                    Log.d("myLog","Error while writing "+e.toString());
-                    throw  new RuntimeException(e);
-                }
-                catch (IOException e){
-                    throw  new RuntimeException(e);
+                    Toast.makeText(getContext(), "PDF saved to Downloads!", Toast.LENGTH_SHORT).show();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Toast.makeText(getContext(), "Error saving PDF: " + e.getMessage(), Toast.LENGTH_LONG).show();
                 }
             }
+
         });
         return view;
     }
