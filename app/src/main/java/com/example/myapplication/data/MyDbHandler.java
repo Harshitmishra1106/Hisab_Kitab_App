@@ -95,7 +95,7 @@ public class MyDbHandler extends SQLiteOpenHelper {
     public  int getCategory(String str){
         SQLiteDatabase db = this.getReadableDatabase();
         int sum = 0;
-        Cursor cursor = db.rawQuery("SELECT SUM(" + Params.KEY_AMOUNT + ") FROM " + Params.TABLE_NAME + " WHERE " + Params.KEY_REASON + " = '" + str + "'", null);
+        Cursor cursor = db.rawQuery("SELECT SUM(" + Params.KEY_AMOUNT + ") FROM " + Params.TABLE_NAME + " WHERE " + Params.KEY_REASON + " LIKE '%" + str + "%'", null);
         if (cursor.moveToFirst()) {
             sum = cursor.getInt(0);
         }

@@ -5,48 +5,36 @@ import static androidx.core.content.ContextCompat.getSystemService;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
 import android.graphics.pdf.PdfDocument;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.fragment.app.Fragment;
 
 import android.os.Environment;
-import android.os.storage.StorageManager;
-import android.os.storage.StorageVolume;
 import android.provider.MediaStore;
-import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.example.myapplication.data.MyDbHandler;
+import com.example.myapplication.databinding.FragmentHistoryBinding;
 import com.example.myapplication.model.Transaction;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.List;
-
-import cn.pedant.SweetAlert.SweetAlertDialog;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -59,6 +47,7 @@ public class History extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private FragmentHistoryBinding binding;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -98,10 +87,14 @@ public class History extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_history, container, false);
-        RecyclerView recyclerView = view.findViewById(R.id.recyclerView);
-        FloatingActionButton download = view.findViewById(R.id.download);
+        binding = FragmentHistoryBinding.inflate(inflater, container, false);
+
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         ArrayList<String> purpose,amount,date,time;
         purpose=new ArrayList<>();
         amount=new ArrayList<>();
@@ -118,19 +111,19 @@ public class History extends Fragment {
             time.add(transaction.getTime());
         }
         adapter = new MyListAdapter(this.getActivity(),purpose,amount,date,time);
-        recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));
+        binding.recyclerView.setAdapter(adapter);
+        binding.recyclerView.setLayoutManager(new LinearLayoutManager(this.getContext()));
 
-        
-        download.setOnClickListener(new View.OnClickListener() {
+
+        binding.download.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                recyclerView.measure(
-                        View.MeasureSpec.makeMeasureSpec(recyclerView.getWidth(), View.MeasureSpec.EXACTLY),
+                binding.recyclerView.measure(
+                        View.MeasureSpec.makeMeasureSpec(binding.recyclerView.getWidth(), View.MeasureSpec.EXACTLY),
                         View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
                 );
-                int width = recyclerView.getMeasuredWidth();
-                int height = recyclerView.getMeasuredHeight();
+                int width = binding.recyclerView.getMeasuredWidth();
+                int height = binding.recyclerView.getMeasuredHeight();
 
                 // Create PDF
                 PdfDocument document = new PdfDocument();
@@ -138,7 +131,7 @@ public class History extends Fragment {
                 PdfDocument.Page page = document.startPage(pageInfo);
 
                 Canvas canvas = page.getCanvas();
-                recyclerView.draw(canvas);
+                binding.recyclerView.draw(canvas);
                 document.finishPage(page);
 
                 String fileName = "Expense_History.pdf";
@@ -148,7 +141,7 @@ public class History extends Fragment {
                     savePdfUsingMediaStore(document, fileName);
                 } else {
                     // Use File API for Android 9 and below
-                    if (ContextCompat.checkSelfPermission(getContext(),
+                    if (ContextCompat.checkSelfPermission(binding.getRoot().getContext(),
                             "android.permission.WRITE_EXTERNAL_STORAGE") != PackageManager.PERMISSION_GRANTED) {
                         ActivityCompat.requestPermissions(getActivity(),
                                 new String[]{"android.permission.WRITE_EXTERNAL_STORAGE"}, 1);
@@ -159,7 +152,7 @@ public class History extends Fragment {
             }
             @RequiresApi(api = Build.VERSION_CODES.Q)
             private void savePdfUsingMediaStore(PdfDocument document, String fileName) {
-                ContentResolver resolver = getContext().getContentResolver();
+                ContentResolver resolver = binding.getRoot().getContext().getContentResolver();
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
                 contentValues.put(MediaStore.Downloads.MIME_TYPE, "application/pdf");
@@ -202,6 +195,5 @@ public class History extends Fragment {
             }
 
         });
-        return view;
     }
 }

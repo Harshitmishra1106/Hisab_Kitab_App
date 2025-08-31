@@ -2,7 +2,8 @@ package com.example.myapplication;
 
 import android.os.Bundle;
 
-import androidx.cardview.widget.CardView;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -11,9 +12,9 @@ import android.transition.TransitionInflater;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import com.example.myapplication.data.MyDbHandler;
+import com.example.myapplication.databinding.FragmentOptionsBinding;
 import com.google.android.material.snackbar.Snackbar;
 import com.jaredrummler.materialspinner.MaterialSpinner;
 
@@ -23,6 +24,8 @@ import com.jaredrummler.materialspinner.MaterialSpinner;
  * create an instance of this fragment.
  */
 public class Options extends Fragment {
+
+    private FragmentOptionsBinding binding;
 
     public Options() {
         // Required empty public constructor
@@ -56,29 +59,27 @@ public class Options extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_options, container, false);
-        MaterialSpinner spinner = (MaterialSpinner) view.findViewById(R.id.currency);
-        TextView note1 = view.findViewById(R.id.note1);
-        TextView note2 = view.findViewById(R.id.note2);
-        CardView savings = view.findViewById(R.id.savings);
-        CardView exp = view.findViewById(R.id.expense);
-        CardView payment = view.findViewById(R.id.payment);
-        spinner.setItems("Select Currency","₹","$","€","¥","£","£");
-        spinner.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener<String>() {
+        binding = FragmentOptionsBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        binding.currency.setItems("Select Currency","₹","$","€","¥","£","£");
+        binding.currency.setOnItemSelectedListener(new MaterialSpinner.OnItemSelectedListener<String>() {
 
             @Override public void onItemSelected(MaterialSpinner view, int position, long id, String item) {
                 Snackbar.make(view, "Clicked " + item, Snackbar.LENGTH_LONG).show();
-                note1.setText(item);
-                note2.setText(item);
+                binding.note1.setText(item);
+                binding.note2.setText(item);
             }
         });
-        TextView saving = view.findViewById(R.id.saving);
-        TextView expense = view.findViewById(R.id.exp);
         MyDbHandler db = new MyDbHandler(getContext());
-        saving.setText(String.valueOf(db.getSavingSum()));
-        expense.setText(String.valueOf(db.getExpenseSum()));
+        binding.saving.setText(String.valueOf(db.getSavingSum()));
+        binding.exp.setText(String.valueOf(db.getExpenseSum()));
 
-        savings.setOnClickListener(new View.OnClickListener() {
+        binding.savings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AddMoney fragment = new AddMoney();
@@ -89,7 +90,7 @@ public class Options extends Fragment {
                 fragmentTransaction.commit();
             }
         });
-        exp.setOnClickListener(new View.OnClickListener() {
+        binding.expense.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AddCost fragment = new AddCost();
@@ -100,17 +101,16 @@ public class Options extends Fragment {
                 fragmentTransaction.commit();
             }
         });
-        payment.setOnClickListener(new View.OnClickListener() {
+        binding.payment.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 payment fragment = new payment();
                 FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.replace(R.id.frameLayout1, fragment);
+                fragmentTransaction.replace(R.id.frameLayout, fragment);
                 fragmentTransaction.addToBackStack(null);
                 fragmentTransaction.commit();
             }
         });
-        return view;
     }
 }

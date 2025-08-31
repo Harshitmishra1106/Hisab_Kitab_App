@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content"
                 android:text="Add Cost"
                 android:textStyle="bold"
-                android:textColor="@color/purple_500"
+                android:textColor="#0463A3"
                 android:textSize="30sp"
                 android:layout_gravity="center"/>
         <EditText
@@ -32,7 +32,7 @@
             android:layout_width="250dp"
             android:layout_height="60dp"
             android:background="@drawable/card_2"
-            android:hint="Add Expenditure"
+            android:hint="Add Expense"
             android:inputType="number"
             android:layout_gravity="center_horizontal"
             android:layout_marginTop="15dp"

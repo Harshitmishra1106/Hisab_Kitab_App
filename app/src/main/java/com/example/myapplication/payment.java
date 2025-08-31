@@ -1,65 +1,43 @@
 package com.example.myapplication;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
-
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+
 import com.example.myapplication.data.MyDbHandler;
+import com.example.myapplication.databinding.FragmentPaymentBinding;
 import com.example.myapplication.model.Transaction;
-import com.google.android.material.snackbar.Snackbar;
-//import com.jaredrummler.materialspinner.MaterialSpinner;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Objects;
 
-import dev.shreyaspatil.easyupipayment.EasyUpiPayment;
-import dev.shreyaspatil.easyupipayment.EasyUpiPayment.Builder;
-import dev.shreyaspatil.easyupipayment.listener.PaymentStatusListener;
-import dev.shreyaspatil.easyupipayment.model.PaymentApp;
-import dev.shreyaspatil.easyupipayment.model.TransactionDetails;
+import cn.pedant.SweetAlert.SweetAlertDialog;
 
 /**
  * A simple {@link Fragment} subclass.
  * Use the {@link payment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class payment extends Fragment implements PaymentStatusListener {
+public class payment extends Fragment {
 
-    private TextView statusView;
-
-    private Button payButton;
-
-    private RadioGroup radioAppChoice;
-
-    private EditText fieldPayeeVpa;
-    private EditText fieldPayeeName;
-    private EditText fieldPayeeMerchantCode;
-    private EditText fieldTransactionId;
-    private EditText fieldTransactionRefId;
-    private EditText fieldDescription;
-    private EditText fieldAmount;
-    RadioButton paymentAppChoice;
-
-    private EasyUpiPayment easyUpiPayment;
+    private FragmentPaymentBinding binding;
+    private ActivityResultLauncher<Intent> upiPaymentLauncher;
+    String payeeUpiId ;
+    String payeeName ;
+    String description ;
+    String amount ;
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -105,129 +83,127 @@ public class payment extends Fragment implements PaymentStatusListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_payment, container, false);
-        statusView = view.findViewById(R.id.textView_status);
-        payButton = view.findViewById(R.id.button_pay);
-
-        fieldPayeeVpa = view.findViewById(R.id.field_vpa);
-        fieldPayeeName = view.findViewById(R.id.field_name);
-        fieldPayeeMerchantCode = view.findViewById(R.id.field_payee_merchant_code);
-        fieldTransactionId = view.findViewById(R.id.field_transaction_id);
-        fieldTransactionRefId = view.findViewById(R.id.field_transaction_ref_id);
-        fieldDescription = view.findViewById(R.id.field_description);
-        fieldAmount = view.findViewById(R.id.field_amount);
-
-        String transactionId = "TID" + System.currentTimeMillis();
-        fieldTransactionId.setText(transactionId);
-        fieldTransactionRefId.setText(transactionId);
-        radioAppChoice = view.findViewById(R.id.radioAppChoice);
-        paymentAppChoice = view.findViewById(radioAppChoice.getCheckedRadioButtonId());
-        payButton.setOnClickListener(v -> pay());
-        return view;
+        binding = FragmentPaymentBinding.inflate(inflater, container, false);
+        return binding.getRoot();
     }
 
-    private void pay() {
-        String payeeVpa = fieldPayeeVpa.getText().toString();
-        String payeeName = fieldPayeeName.getText().toString();
-        String payeeMerchantCode = fieldPayeeMerchantCode.getText().toString();
-        String transactionId = fieldTransactionId.getText().toString();
-        String transactionRefId = fieldTransactionRefId.getText().toString();
-        String description = fieldDescription.getText().toString();
-        String amount = fieldAmount.getText().toString();
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        // startActivityForResult() and onActivityResult() are deprecated so Initialize Activity Result Launcher to use
+        // The modern approach in a Fragment is to use the Activity Result API with registerForActivityResult()
+        upiPaymentLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    Intent data = result.getData();
 
+                    if (data != null) {
+                        String response = data.getStringExtra("response");
 
-        PaymentApp paymentApp;
+                        // Fallback for apps like Google Pay
+                        if (response == null || response.isEmpty()) {
+                            response = data.getDataString();
+                        }
 
-        switch (paymentAppChoice.getId()) {
-            case R.id.app_default:
-                paymentApp = PaymentApp.ALL;
-                break;
-            case R.id.app_amazonpay:
-                paymentApp = PaymentApp.AMAZON_PAY;
-                break;
-            case R.id.app_bhim_upi:
-                paymentApp = PaymentApp.BHIM_UPI;
-                break;
-            case R.id.app_google_pay:
-                paymentApp = PaymentApp.GOOGLE_PAY;
-                break;
-            case R.id.app_phonepe:
-                paymentApp = PaymentApp.PHONE_PE;
-                break;
-            case R.id.app_paytm:
-                paymentApp = PaymentApp.PAYTM;
-                break;
+                        if (response != null && !response.isEmpty()) {
+                            String status = getStatusFromResponse(response);
+                            if (status.equals("Successful")) {
+                                Calendar calendar = Calendar.getInstance();
+                                int hour = calendar.get(Calendar.HOUR_OF_DAY);
+                                int minute = calendar.get(Calendar.MINUTE);
+                                String timeString = String.format(Locale.getDefault(), "%02d:%02d", hour, minute);
+                                int year = calendar.get(Calendar.YEAR);
+                                int month = calendar.get(Calendar.MONTH) + 1;
+                                int day = calendar.get(Calendar.DAY_OF_MONTH);
+                                String dateString = String.format(Locale.getDefault(), "%02d-%02d-%02d", day, month, year);
+
+                                try (MyDbHandler db = new MyDbHandler(getContext())) {
+                                    Transaction cost = new Transaction();
+                                    cost.setReason("Fund Transfer " + payeeName);
+                                    cost.setAmount(Integer.parseInt(amount));
+                                    cost.setDate(dateString);
+                                    cost.setTime(timeString);
+                                    cost.setType("e");
+                                    db.addTransaction(cost);
+                                    new SweetAlertDialog(binding.getRoot().getContext(), SweetAlertDialog.SUCCESS_TYPE)
+                                            .setTitleText("Confirmation!")
+                                            .setContentText("Expense details saved successfully")
+                                            .show();
+                                }
+                            } else {
+                                Toast.makeText(binding.getRoot().getContext(), "Transaction " + status, Toast.LENGTH_LONG).show();
+                            }
+                        } else {
+                            Toast.makeText(binding.getRoot().getContext(), "No response from UPI app", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(binding.getRoot().getContext(), "Transaction cancelled", Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+
+        binding.buttonPay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                payeeUpiId = Objects.requireNonNull(binding.fieldVpa.getText()).toString().trim();
+                payeeName = Objects.requireNonNull(binding.fieldName.getText()).toString().trim();
+                description = Objects.requireNonNull(binding.fieldDescription.getText()).toString().trim();
+                amount = Objects.requireNonNull(binding.fieldAmount.getText()).toString().trim();
+                if(!payeeUpiId.isEmpty()&& !payeeName.isEmpty()&& !description.isEmpty()&& !amount.isEmpty()) payUsingUpi();
+                else{
+                    Toast.makeText(binding.getRoot().getContext(), "All fields are mandatory", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void payUsingUpi() {
+        double amt = Double.parseDouble(amount);
+        String formattedAmount = String.format(Locale.US, "%.2f", amt);
+
+        Uri uri = Uri.parse("upi://pay").buildUpon()
+                .appendQueryParameter("pa", payeeUpiId)
+                .appendQueryParameter("pn", payeeName)
+                .appendQueryParameter("tn", description)
+                .appendQueryParameter("am", formattedAmount)
+                .appendQueryParameter("cu", "INR")
+                .build();
+
+        Intent upiPayIntent = new Intent(Intent.ACTION_VIEW, uri);
+        Intent chooser = Intent.createChooser(upiPayIntent, "Pay with");
+        if (chooser.resolveActivity(requireContext().getPackageManager()) != null) {
+            upiPaymentLauncher.launch(chooser);
+        } else {
+            Toast.makeText(requireContext(), "No UPI app found. Please install one to continue.", Toast.LENGTH_SHORT).show();
+        }
+
+    }
+
+    private String getStatusFromResponse(String response) {
+        if (response == null) return "FAILED";
+
+        String[] pairs = response.split("&");
+        HashMap<String, String> map = new HashMap<>();
+
+        for (String pair : pairs) {
+            String[] keyValue = pair.split("=");
+            if (keyValue.length >= 2) {
+                map.put(keyValue[0].toLowerCase(), keyValue[1]);
+            }
+        }
+
+        String status = map.get("status");
+        if (status == null) return "FAILED";
+
+        switch (status.toUpperCase()) {
+            case "SUCCESS":
+                return "Successful";
+            case "FAILURE":
+                return "Failed";
+            case "SUBMITTED":
+                return "Pending";
             default:
-                throw new IllegalStateException("Unexpected value: " + paymentAppChoice.getId());
+                return "Cancelled";
         }
-
-
-        // START PAYMENT INITIALIZATION
-        EasyUpiPayment.Builder builder = new EasyUpiPayment.Builder(requireActivity())
-                .with(paymentApp)
-                .setPayeeVpa(payeeVpa)
-                .setPayeeName(payeeName)
-                .setTransactionId(transactionId)
-                .setTransactionRefId(transactionRefId)
-                .setPayeeMerchantCode(payeeMerchantCode)
-                .setDescription(description)
-                .setAmount(amount);
-        // END INITIALIZATION
-
-        try {
-            // Build instance
-            easyUpiPayment = builder.build();
-
-            // Register Listener for Events
-            easyUpiPayment.setPaymentStatusListener(this);
-
-            // Start payment / transaction
-            easyUpiPayment.startPayment();
-        } catch (Exception exception) {
-            exception.printStackTrace();
-            Toast.makeText(getContext(), "Error: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    @Override
-    public void onTransactionCancelled() {
-        Toast.makeText(getContext(), "Transaction cancelled by the user", Toast.LENGTH_SHORT).show();
-    }
-
-    @Override
-    public void onTransactionCompleted(@NonNull TransactionDetails transactionDetails) {
-        Toast.makeText(getContext(), "Transaction Completed Successfully", Toast.LENGTH_SHORT).show();
-        Calendar calendar = Calendar.getInstance();
-        int hour = calendar.get(Calendar.HOUR_OF_DAY);
-        int minute = calendar.get(Calendar.MINUTE);
-        String timeString = String.format(Locale.getDefault(),"%02d:%02d", hour, minute);
-        int year = calendar.get(Calendar.YEAR);
-        int month = calendar.get(Calendar.MONTH) + 1;
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
-        String dateString = String.format(Locale.getDefault(),"%02d-%02d-%02d",day,month,year);
-        String str = fieldAmount.getText().toString();
-        int val = Integer.parseInt(str.trim());
-        MyDbHandler db = new MyDbHandler(getContext());
-        Transaction cost = new Transaction();
-        cost.setReason(fieldDescription.getText().toString());
-        cost.setAmount(val);
-        cost.setDate(dateString);
-        cost.setTime(timeString);
-        cost.setType("e");
-        db.addTransaction(cost);
-    }
-
-    private void onTransactionSubmitted() {
-        // Payment Pending
-        toast("Pending | Submitted");
-    }
-
-    private void onTransactionFailed() {
-        // Payment Failed
-        toast("Failed");
-    }
-
-    private void toast(String message) {
-        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
 }

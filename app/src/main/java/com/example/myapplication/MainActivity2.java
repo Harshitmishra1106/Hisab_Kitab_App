@@ -7,21 +7,21 @@ import android.os.Bundle;
 import android.transition.TransitionInflater;
 import android.view.MenuItem;
 
+import com.example.myapplication.databinding.ActivityMain2Binding;
+import com.example.myapplication.databinding.ActivityMainBinding;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
 public class MainActivity2 extends AppCompatActivity implements NavigationBarView.OnItemSelectedListener {
-    BottomNavigationView bottomNavigationView;
+    private ActivityMain2Binding binding;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main2);
-        bottomNavigationView
-                = findViewById(R.id.bottomNavigationView);
-
-        bottomNavigationView
+        binding = ActivityMain2Binding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        binding.bottomNavigationView
                 .setOnItemSelectedListener(this);
-        bottomNavigationView.setSelectedItemId(R.id.home);
+        binding.bottomNavigationView.setSelectedItemId(R.id.home);
     }
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {

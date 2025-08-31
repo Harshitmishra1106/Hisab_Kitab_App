@@ -1,155 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".payment"
+    android:background="#8EB6FF"
     android:orientation="vertical">
-    <LinearLayout xmlns:tools="http://schemas.android.com/tools"
+
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        tools:context=".java.MainActivity">
+        android:layout_marginStart="15dp"
+        android:layout_marginEnd="15dp"
+        app:cardCornerRadius="20dp"
+        app:cardElevation="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <EditText
-            android:id="@+id/field_vpa"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="30dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="5dp"
             android:layout_marginTop="20dp"
-            android:layout_marginBottom="10dp"
-            android:gravity="center"
-            android:background="@drawable/card_2"
-            android:hint="UPI ID" />
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="20dp"
+            android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/field_name"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:gravity="center"
-            android:background="@drawable/card_2"
-            android:hint="Payee Name" />
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp">
 
-        <EditText
-            android:id="@+id/field_payee_merchant_code"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:gravity="center"
-            android:background="@drawable/card_2"
-            android:hint="Payee Merchant Code" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/field_vpa"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="UPI ID" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/field_transaction_id"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:gravity="center"
-            android:background="@drawable/card_2"
-            android:hint="Transaction ID" />
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp">
 
-        <EditText
-            android:id="@+id/field_transaction_ref_id"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:gravity="center"
-            android:background="@drawable/card_2"
-            android:hint="Transaction Ref ID" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/field_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Payee Name"
+                    android:inputType="textPersonName" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/field_description"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:background="@drawable/card_2"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:gravity="center"
-            android:hint="Description" />
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp">
 
-        <EditText
-            android:id="@+id/field_amount"
-            android:layout_width="match_parent"
-            android:layout_height="30dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/card_2"
-            android:gravity="center"
-            android:hint="Amount" />
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/field_description"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Description" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:text="UPI App :"
-            android:textColor="#000000"
-            android:textSize="18sp" />
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp">
 
-        <RadioGroup
-            android:id="@+id/radioAppChoice"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/field_amount"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:hint="Amount"
+                    android:inputType="number" />
+            </com.google.android.material.textfield.TextInputLayout>
 
-            <RadioButton
-                android:id="@+id/app_default"
+            <Button
+                android:id="@+id/button_pay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:checked="true"
-                android:text="Default" />
+                android:layout_gravity="center"
+                android:text="Pay with UPI" />
 
-            <RadioButton
-                android:id="@+id/app_amazonpay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="AmazonPay" />
+        </LinearLayout>
 
-            <RadioButton
-                android:id="@+id/app_bhim_upi"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="BHIM UPI" />
+    </androidx.cardview.widget.CardView>
 
-            <RadioButton
-                android:id="@+id/app_google_pay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Google Pay" />
 
-            <RadioButton
-                android:id="@+id/app_phonepe"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="PhonePe" />
-
-            <RadioButton
-                android:id="@+id/app_paytm"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="PayTm" />
-        </RadioGroup>
-
-        <Button
-            android:id="@+id/button_pay"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Pay with UPI" />
-
-        <TextView
-            android:id="@+id/textView_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:text="Click above button to Pay"
-            android:textColor="#000000"
-            android:textSize="19sp" />
-    </LinearLayout>
-
-    </ScrollView>
+    </androidx.constraintlayout.widget.ConstraintLayout>

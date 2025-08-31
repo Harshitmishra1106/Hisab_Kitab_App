@@ -15,47 +15,48 @@
         android:isScrollContainer="true"
         android:scrollbarAlwaysDrawVerticalTrack="true">
 
+
         <TextView
             android:id="@+id/textView3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Home"
-            android:textColor="@color/black"
+            android:textColor="#6D9EF8"
             android:textSize="30sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/imageView"
-            app:layout_constraintHorizontal_bias="0.568"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.021" />
-
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:src="@drawable/notifications"
-            app:layout_constraintBottom_toBottomOf="@+id/textView3"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="1.0" />
+            app:layout_constraintVertical_bias="0.023" />
 
-        <com.denzcoskun.imageslider.ImageSlider
-            android:id="@+id/viewFlipper"
-            android:layout_width="350dp"
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
             android:layout_height="200dp"
-            app:iss_auto_cycle="true"
-            app:iss_corner_radius="20"
-            app:iss_delay="1000"
-            app:iss_period="1000"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="20dp"
+            android:layout_marginStart="20dp"
+            app:cardElevation="20dp"
+            app:cardCornerRadius="20dp"
+            app:cardBackgroundColor="#8EB6FF"
             app:layout_constraintBottom_toTopOf="@+id/frameLayout1"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.496"
+            app:layout_constraintHorizontal_bias="0.491"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView3"
-            app:layout_constraintVertical_bias="0.625" />
+            app:layout_constraintVertical_bias="0.531" >
+
+            <com.denzcoskun.imageslider.ImageSlider
+                android:id="@+id/viewFlipper"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                app:iss_auto_cycle="true"
+                app:iss_corner_radius="20"
+                app:iss_delay="1000"
+                app:iss_period="1000"
+                />
+
+        </androidx.cardview.widget.CardView>
 
         <FrameLayout
             android:id="@+id/frameLayout1"
@@ -66,7 +67,7 @@
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView3"
-            app:layout_constraintVertical_bias="0.992" />
+            app:layout_constraintVertical_bias="0.891" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
